@@ -1,0 +1,298 @@
+:root {
+    --color-primary: #ffaaa5; /* Rosado */
+    --color-secondary: #d291bc; /* Lila */
+    --color-aqua: #a8e6cf; /* Aqua */
+    --color-red: #ff6f69; /* Rojo */
+    --color-purple: #b19cd9; /* Morado */
+    --color-orange: #ff8c42; /* Naranja para notas no menstruales */
+    --color-background: rgba(255, 255, 255, 0.1);
+    --color-border: rgba(255, 255, 255, 0.2);
+    --color-success: rgba(40, 167, 69, 0.9); /* Verde para notificaciones de éxito */
+    --color-error: rgba(220, 53, 69, 0.9); /* Rojo para notificaciones de error */
+    --color-terceary: blue;
+    --color-you: #800080;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    background: linear-gradient(135deg, #a8e6cf, var(--color-secondary), var(--color-primary));
+    background-size: 200% 200%;
+    animation: gradientAnimation 10s ease infinite;
+    padding-bottom: 80px; /* Espacio para evitar que los botones se superpongan con el teclado */
+}
+
+@keyframes gradientAnimation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Estilo para el cuadro de notificación */
+.notification {
+    display: none;
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--color-success); /* Color por defecto (éxito) */
+    color: white;
+    padding: 15px 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+    animation: fadeInOut 3s ease-in-out;
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+    10% { opacity: 1; transform: translateX(-50%) translateY(0); }
+    90% { opacity: 1; transform: translateX(-50%) translateY(0); }
+    100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+}
+
+/* Barra de navegación */
+.nav {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 400px;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 10px;
+    border-radius: 15px;
+}
+
+.nav button {
+    flex: 1;
+    padding: 10px;
+    background: var(--color-background);
+    color: black;
+    border: 1px solid var(--color-primary);
+    border-radius: 10px;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    transition: background 0.3s ease, transform 0.2s;
+    text-align: center;
+}
+
+.nav button:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+}
+
+.nav button.active {
+    background: var(--color-secondary);
+    transform: scale(1.1);
+}
+
+/* Diseño responsivo */
+@media (max-width: 768px) {
+    .nav {
+        width: 100%;
+        max-width: none;
+        bottom: 0;
+        border-radius: 0;
+        flex-direction: row; /* Asegura que los botones estén en fila */
+        justify-content: space-between; /* Distribuye el espacio entre los botones */
+    }
+
+    .nav button {
+        flex: 1; /* Hace que los botones ocupen el mismo espacio */
+        padding: 15px;
+    }
+
+    body {
+        height: auto; /* Ajustar altura automáticamente */
+        padding: 20px; /* Padding para evitar que el contenido toque los bordes */
+        padding-bottom: 80px; /* Espacio adicional para el teclado */
+    }
+}
+
+/* Cambio de color mientras se presiona el botón */
+.nav button:active {
+    animation: colorChange 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes colorChange {
+    0% { background: var(--color-primary); } /* Rosado */
+    25% { background: var(--color-secondary); } /* Lila */
+    50% { background: var(--color-aqua); } /* Aqua */
+    75% { background: var(--color-red); } /* Rojo */
+    100% { background: var(--color-purple); } /* Morado */
+}
+
+/* Efecto hover para los botones */
+.nav button:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+/* Estilo para el botón activo (pestaña seleccionada) */
+.nav button.active {
+    background: var(--color-secondary);
+    transition: background 0.5s ease, transform 0.3s, scale 0.3s;
+    transform: scale(1.1); /* Agranda ligeramente el botón activo */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Añadir sombra para destacar el botón */
+}
+
+.content {
+    display: none;
+    width: 320px;
+    padding: 30px;
+    background: var(--color-background);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 15px;
+    text-align: center;
+    backdrop-filter: blur(15px);
+}
+
+.active {
+    display: block;
+}
+
+#profile-image {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    margin-top: 10px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    border: 3px solid #a8e6cf;
+}
+
+/* Estilos para los botones "Agregar Nota" y "Borrar Nota" */
+.note-form {
+    margin-top: 20px;
+    display: flex; /* Alinear botones horizontalmente */
+    gap: 10px; /* Espacio entre los botones */
+}
+
+.note-form textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    margin-bottom: 10px;
+    background: var(--color-background);
+    color: black;
+    backdrop-filter: blur(10px);
+}
+
+.note-form button {
+    padding: 10px 20px;
+    background: var(--color-background);
+    color: white;
+    border: 1px solid var(--color-primary);
+    border-radius: 10px;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    transition: background 0.5s ease, transform 0.3s;
+    flex: 1; /* Hace que los botones ocupen el mismo espacio */
+}
+
+.note-form button:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+/* Estilos para el calendario */
+.calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    margin-top: 20px;
+}
+
+.calendar .day {
+    padding: 10px;
+    text-align: center;
+    border-radius: 10px;
+    cursor: pointer;
+    position: relative;
+    background: var(--color-background);
+    color: white;
+    border: 1px solid var(--color-border);
+    backdrop-filter: blur(10px);
+    transition: background 0.3s ease, transform 0.3s;
+}
+
+.calendar .day:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+/* Colores para el ciclo menstrual */
+.calendar .day.menstruation {
+    background: var(--color-red); /* Rojo para menstruación */
+}
+
+.calendar .day.fertile {
+    background: var(--color-you); /* Rosado para días fértiles */
+}
+
+.calendar .day.infertile {
+    background: var(--color-success); /* Aqua para días infértiles */
+}
+
+/* Notas no menstruales */
+.calendar .day.has-note {
+    background: var(--color-orange); /* Naranja para notas no menstruales */
+}
+
+/* Prioridad para notas de menstruación */
+.calendar .day.menstruation.has-note {
+    background: var(--color-red); /* Rojo para menstruación */
+}
+
+/* Media Queries para diseño responsivo */
+@media (max-width: 768px) {
+    .content {
+        width: 90%;
+        padding: 20px;
+        margin-bottom: 100px; /* Espacio para los botones */
+    }
+
+    .nav {
+        flex-direction: row; /* Botones en fila */
+        align-items: center; /* Centrar botones */
+        width: 100%; /* Ocupar todo el ancho */
+        bottom: 0; /* Pegar al fondo */
+        padding: 10px 0; /* Ajuste de padding */
+        background: rgba(255, 255, 255, 0.1); /* Fondo semitransparente */
+        backdrop-filter: blur(10px); /* Efecto de desenfoque */
+        border-radius: 0; /* Sin bordes redondeados */
+    }
+
+    .nav button {
+        width: 100%; /* Botones más anchos */
+        margin-bottom: 5px; /* Espacio entre botones */
+    }
+
+    body {
+        height: auto; /* Ajustar altura automáticamente */
+        padding: 20px; /* Padding para evitar que el contenido toque los bordes */
+        padding-bottom: 80px; /* Espacio adicional para el teclado */
+    }
+
+    .note-form {
+        flex-direction: column; /* Botones apilados verticalmente en móviles */
+    }
+
+    .note-form button {
+        width: 100%; /* Botones ocupan todo el ancho en móviles */
+    }
+}

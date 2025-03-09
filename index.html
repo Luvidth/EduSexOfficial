@@ -1,0 +1,710 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduSex</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+        .nav {
+            display: flex;
+            gap: 10px;
+            position: fixed;
+            bottom: 20px;
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        button {
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .content {
+            display: none;
+            width: 90%;
+            max-width: 800px;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            text-align: center;
+            animation: fadeIn 0.5s ease;
+            margin: 20px 0;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .active {
+            display: block;
+        }
+        #profile-image {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin-top: 10px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .community-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            margin-top: 20px;
+        }
+        .calendar .header {
+            grid-column: span 7;
+            text-align: center;
+            font-weight: bold;
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .calendar .day {
+            padding: 10px;
+            text-align: center;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            cursor: pointer;
+            position: relative;
+        }
+        .calendar .day.has-note {
+            background-color: #ff8c42; /* Naranja para notas no menstruales */
+        }
+        .calendar .day.menstruation {
+            background-color: #ff6f69; /* Rojo para menstruación */
+        }
+        .calendar .day.fertile {
+            background-color: #ffaaa5; /* Rosado para días fértiles */
+        }
+        .calendar .day.infertile {
+            background-color: #a8e6cf; /* Aqua para días infértiles */
+        }
+        .calendar .day:hover {
+            background-color: #007bff;
+            color: white;
+        }
+        .add-event-form {
+            margin-top: 20px;
+        }
+        .add-event-form input[type="date"],
+        .add-event-form input[type="text"] {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+        .add-event-form button {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .add-event-form button:hover {
+            background-color: #218838;
+        }
+        .note-form {
+            margin-top: 20px;
+        }
+        .note-form textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .note-form button {
+            padding: 10px 20px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .note-form button:hover {
+            background-color: #c82333;
+        }
+
+        /* Estilos para el cuadro de confirmación personalizado */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+        .confirmation-box {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            text-align: center;
+        }
+        .confirmation-box button {
+            margin: 5px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .confirmation-box button:hover {
+            background-color: #0056b3;
+        }
+
+        .info-icon {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    cursor: pointer;
+    font-size: 24px;
+    color: #007bff;
+    z-index: 1000;
+    background-color: white; /* Fondo blanco */
+    width: 40px; /* Tamaño del círculo */
+    height: 40px; /* Tamaño del círculo */
+    border-radius: 50%; /* Hace que sea un círculo */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Sombra para resaltar */
+}
+
+.info-modal {
+    display: none;
+    position: fixed;
+    top: 50px;
+    right: 20px;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    width: 250px;
+}
+
+.info-modal.active {
+    display: block;
+}
+
+.info-modal p {
+    margin: 0 0 10px 0;
+    display: flex;
+    align-items: center;
+}
+
+.info-modal p span {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    border-radius: 5px;
+}
+
+.info-modal p span.menstruation {
+    background-color: #ff6f69; /* Rojo para menstruación */
+}
+
+.info-modal p span.fertile {
+    background-color: #ffaaa5; /* Rosado para días fértiles */
+}
+
+.info-modal p span.infertile {
+    background-color: #a8e6cf; /* Aqua para días infértiles */
+}
+
+.info-modal button {
+    margin-top: 10px;
+    padding: 5px 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.info-modal button:hover {
+    background-color: #0056b3;
+}
+    </style>
+</head>
+<body onload="checkLoggedIn(); loadCalendar();">
+    <!-- Ícono de información -->
+<div class="info-icon" onclick="toggleInfoModal()">!</div>
+
+<!-- Modal de información -->
+<div class="info-modal" id="info-modal">
+    <h3>Colores del Calendario</h3>
+    <p>
+        <span class="menstruation"></span>
+        Días de menstruación (sangrado).
+    </p>
+    <p>
+        <span class="fertile"></span>
+        Días fértiles (posible ovulación).
+    </p>
+    <p>
+        <span class="infertile"></span>
+        Días infértiles (no fértiles).
+    </p>
+    <button onclick="toggleInfoModal()">Cerrar</button>
+</div>
+    <div class="notification" id="notification"></div>
+    <main>
+        <section id="cuenta" class="content active">
+            <h2>Cuenta</h2>
+            <div id="login-form">
+                <label for="username">Usuario</label>
+                <input type="text" id="username" placeholder="Usuario"><br><br>
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" placeholder="Contraseña"><br><br>
+                <button onclick="login()">Iniciar sesión</button>
+                <button onclick="register()">Registrarse</button>
+            </div>
+            <div id="profile" style="display: none;">
+                <h3>Bienvenido, <span id="user-name"></span></h3>
+                <label for="profile-pic">Subir imagen de perfil</label>
+                <input type="file" id="profile-pic" accept="image/*" onchange="uploadProfilePic(event)"><br><br>
+                <img id="profile-image" src="icono.png" alt="Imagen de perfil" style="display: none;">
+                <button onclick="logout()">Cerrar sesión</button>
+            </div>
+        </section>
+        <section id="comunidad" class="content">
+            <h2>Comunidad</h2>
+            <div class="community-buttons">
+                <button onclick="window.location.href='https://sites.google.com/view/edusexapp/comunidad?authuser=0';">Comunidad General</button>
+                <button onclick="window.location.href='https://sites.google.com/view/edusexapp/chat-con-profesionales?authuser=0';">Chat con Profesionales</button>
+                <button onclick="window.location.href='https://sites.google.com/view/edusexapp/aprende?authuser=0';">Aprende</button>
+                <button onclick="window.location.href='https://mapasalud.minsa.gob.ni/';">Mapas MINSA</button>
+            </div>
+        </section>
+        <section id="calendarizacion" class="content">
+            <h2>Calendarización</h2>
+            <div class="calendar-controls">
+                <select id="month-select" onchange="loadCalendar()">
+                    <option value="0">Enero</option>
+                    <option value="1">Febrero</option>
+                    <option value="2">Marzo</option>
+                    <option value="3">Abril</option>
+                    <option value="4">Mayo</option>
+                    <option value="5">Junio</option>
+                    <option value="6">Julio</option>
+                    <option value="7">Agosto</option>
+                    <option value="8">Septiembre</option>
+                    <option value="9">Octubre</option>
+                    <option value="10">Noviembre</option>
+                    <option value="11">Diciembre</option>
+                </select>
+                <input type="number" id="year-select" min="1900" max="2100" value="2025" onchange="loadCalendar()">
+            </div>
+            <div class="calendar" id="calendar"></div>
+            <div class="note-form">
+                <textarea id="note-text" placeholder="Escribe una nota..."></textarea>
+                <button onclick="addNote()">Agregar Nota</button>
+                <button onclick="deleteNote()">Borrar Nota</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Cuadro de confirmación personalizado -->
+    <div class="overlay" id="overlay"></div>
+    <div class="confirmation-box" id="confirmation-box">
+        <p>¿Es menstruación?</p>
+        <button onclick="confirmMenstruation(true)">Sí</button>
+        <button onclick="confirmMenstruation(false)">No</button>
+    </div>
+    
+    <nav class="nav">
+        <button onclick="showSection('cuenta')">Cuenta</button>
+        <button onclick="showSection('comunidad')">Comunidad</button>
+        <button onclick="showSection('calendarizacion')">Calendarización</button>
+    </nav>
+    
+    <script>
+        // Función para mostrar/ocultar el modal de información
+function toggleInfoModal() {
+    const modal = document.getElementById('info-modal');
+    modal.classList.toggle('active');
+}
+        let selectedDate = null;
+        let menstruationDate = null; // Fecha en la que se espera la siguiente nota
+
+        // Función para verificar si el usuario ha iniciado sesión
+        function checkLoggedIn() {
+            const loggedInUser = localStorage.getItem('loggedInUser');
+            if (!loggedInUser) {
+                showSection('cuenta'); // Redirigir a la sección de cuenta si no hay usuario logueado
+            } else {
+                // Mostrar el perfil del usuario
+                document.getElementById('user-name').innerText = loggedInUser;
+                document.getElementById('login-form').style.display = 'none';
+                document.getElementById('profile').style.display = 'block';
+
+                // Cargar la imagen de perfil si existe
+                const storedUser = JSON.parse(localStorage.getItem(loggedInUser));
+                if (storedUser.profileImage) {
+                    document.getElementById('profile-image').src = storedUser.profileImage;
+                    document.getElementById('profile-image').style.display = 'block';
+                }
+            }
+        }
+
+        // Función para mostrar u ocultar secciones
+        function showSection(sectionId) {
+            document.querySelectorAll('.content').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(sectionId).classList.add('active');
+        }
+
+        // Notificación
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.backgroundColor = type === 'success' ? '#28a745' : '#dc3545';
+            notification.style.display = 'block';
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+
+        // Función para cargar el calendario
+        function loadCalendar() {
+            const loggedInUser = localStorage.getItem('loggedInUser');
+            if (!loggedInUser) {
+                // Si no hay usuario logueado, no aplicar colores
+                return;
+            }
+
+            const month = parseInt(document.getElementById('month-select').value);
+            const year = parseInt(document.getElementById('year-select').value);
+            const calendarEl = document.getElementById('calendar');
+            calendarEl.innerHTML = '';
+
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const startDay = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1; // Ajuste para empezar en lunes
+
+            // Crear días vacíos para alinear el primer día del mes
+            for (let i = 0; i < startDay; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'day';
+                calendarEl.appendChild(emptyDay);
+            }
+
+            // Crear días del mes
+            for (let i = 1; i <= lastDay.getDate(); i++) {
+                const dayEl = document.createElement('div');
+                dayEl.className = 'day';
+                dayEl.textContent = i;
+
+                const currentDate = new Date(year, month, i);
+                const cycleDay = getCycleDay(currentDate); // Obtener el día del ciclo menstrual
+
+                // Aplicar colores según el estado del ciclo (solo si el usuario ha iniciado sesión)
+                if (isMenstruationDate(currentDate)) {
+                    dayEl.classList.add('menstruation'); // Menstruación
+                } else if (isFertileDay(cycleDay)) {
+                    dayEl.classList.add('fertile'); // Días fértiles
+                } else {
+                    dayEl.classList.add('infertile'); // Días infértiles
+                }
+
+                // Verificar si hay una nota para este día (solo si el usuario ha iniciado sesión)
+                const noteKey = `note-${loggedInUser}-${currentDate.toISOString().split('T')[0]}`;
+                const note = localStorage.getItem(noteKey);
+                if (note) {
+                    dayEl.classList.add('has-note'); // Agregar clase para notas
+                }
+
+                dayEl.addEventListener('click', () => selectDate(year, month, i));
+                calendarEl.appendChild(dayEl);
+            }
+        }
+
+        // Función para obtener el día del ciclo menstrual
+        function getCycleDay(date) {
+            const loggedInUser = localStorage.getItem('loggedInUser');
+            if (!loggedInUser) return null;
+
+            const menstruationStart = localStorage.getItem(`menstruationDate-${loggedInUser}`);
+            if (!menstruationStart) return null;
+
+            const startDate = new Date(menstruationStart);
+            const diffTime = date - startDate;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            return diffDays >= 0 ? (diffDays % 28) + 1 : null; // Ciclo de 28 días
+        }
+
+        // Función para verificar si es un día de menstruación
+        function isMenstruationDate(date) {
+            const loggedInUser = localStorage.getItem('loggedInUser');
+            if (!loggedInUser) return false;
+
+            const menstruationStart = localStorage.getItem(`menstruationDate-${loggedInUser}`);
+            if (!menstruationStart) return false;
+
+            const startDate = new Date(menstruationStart);
+            const diffTime = date - startDate;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            return diffDays >= 0 && diffDays < 5; // Primeros 5 días
+        }
+
+        // Función para verificar si es un día fértil
+        function isFertileDay(cycleDay) {
+            if (cycleDay === null) return false;
+            return cycleDay >= 10 && cycleDay <= 19; // Días 10-19 del ciclo
+        }
+
+        // Función para seleccionar una fecha
+        function selectDate(year, month, day) {
+            selectedDate = new Date(year, month, day);
+            const loggedInUser = localStorage.getItem('loggedInUser');
+            if (!loggedInUser) return;
+
+            const noteKey = `note-${loggedInUser}-${selectedDate.toISOString().split('T')[0]}`;
+            const noteText = localStorage.getItem(noteKey) || '';
+            document.getElementById('note-text').value = noteText;
+            showNotification(`Fecha seleccionada: ${selectedDate.toLocaleDateString()}`);
+        }
+
+        // Función para agregar una nota
+        function addNote() {
+            const loggedInUser = localStorage.getItem('loggedInUser');
+            if (!loggedInUser) {
+                showNotification("Por favor, inicia sesión para agregar una nota.", 'error');
+                return;
+            }
+
+            if (!selectedDate) {
+                showNotification("Por favor, selecciona una fecha.", 'error');
+                return;
+            }
+
+            const noteText = document.getElementById('note-text').value.trim();
+            if (!noteText) {
+                showNotification("Por favor, escribe una nota.", 'error');
+                return;
+            }
+
+            // Mostrar el cuadro de confirmación
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('confirmation-box').style.display = 'block';
+        }
+
+        // Función para confirmar menstruación
+        function confirmMenstruation(isMenstruation) {
+    const loggedInUser = localStorage.getItem('loggedInUser');
+    if (!loggedInUser) {
+        showNotification("Por favor, inicia sesión para agregar una nota.", 'error');
+        return;
+    }
+
+    if (!selectedDate) {
+        showNotification("Por favor, selecciona una fecha.", 'error');
+        return;
+    }
+
+    const noteText = document.getElementById('note-text').value.trim();
+    if (!noteText) {
+        showNotification("La nota no puede estar vacía.", 'error');
+        return;
+    }
+
+    Swal.fire({
+        title: "¿Confirmar acción?",
+        text: isMenstruation ? "¿Deseas registrar esta nota como inicio de menstruación?" : "¿Deseas guardar esta nota?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Sí, guardar",
+        cancelButtonText: "Cancelar"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Ocultar el cuadro de confirmación si existe
+            const overlay = document.getElementById('overlay');
+            const confirmationBox = document.getElementById('confirmation-box');
+            if (overlay) overlay.style.display = 'none';
+            if (confirmationBox) confirmationBox.style.display = 'none';
+
+            const noteKey = `note-${loggedInUser}-${selectedDate.toISOString().split('T')[0]}`;
+            localStorage.setItem(noteKey, noteText);
+
+            if (isMenstruation) {
+                localStorage.setItem(`menstruationDate-${loggedInUser}`, selectedDate.toISOString());
+            }
+
+            showNotification("Nota agregada exitosamente");
+            loadCalendar(); // Recargar calendario para reflejar cambios
+        }
+    });
+}
+
+
+
+        // Función para borrar una nota
+        function deleteNote() {
+    const loggedInUser = localStorage.getItem('loggedInUser');
+    if (!loggedInUser) {
+        showNotification("Por favor, inicia sesión para borrar una nota.", 'error');
+        return;
+    }
+
+    if (!selectedDate) {
+        showNotification("Por favor, selecciona una fecha.", 'error');
+        return;
+    }
+
+    Swal.fire({
+        title: "¿Estás seguro?",
+        text: "Esta acción eliminará la nota de forma permanente.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sí, borrar",
+        cancelButtonText: "Cancelar"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const noteKey = `note-${loggedInUser}-${selectedDate.toISOString().split('T')[0]}`;
+            const noteText = localStorage.getItem(noteKey);
+
+            const menstruationKey = `menstruationDate-${loggedInUser}`;
+            const menstruationDate = localStorage.getItem(menstruationKey);
+
+            if (menstruationDate && new Date(menstruationDate).toISOString().split('T')[0] === selectedDate.toISOString().split('T')[0]) {
+                localStorage.removeItem(menstruationKey);
+            }
+
+            localStorage.removeItem(noteKey);
+            document.getElementById('note-text').value = '';
+            loadCalendar();
+            showNotification("Nota borrada exitosamente");
+        }
+    });
+}
+
+
+        // Funciones de inicio de sesión y registro
+        function login() {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+
+            if (!username || !password) {
+                showNotification("Por favor, completa todos los campos.", 'error');
+                return;
+            }
+
+            const storedUser = JSON.parse(localStorage.getItem(username));
+
+            if (!storedUser || storedUser.password !== password) {
+                showNotification("Usuario o contraseña incorrectos", 'error');
+                return;
+            }
+
+            document.getElementById('user-name').innerText = username;
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('profile').style.display = 'block';
+
+            const profileImage = storedUser.profileImage || 'default-profile.png';
+            document.getElementById('profile-image').src = profileImage;
+            document.getElementById('profile-image').style.display = 'block';
+
+            localStorage.setItem('loggedInUser', username);
+            showNotification("Inicio de sesión exitoso");
+        }
+
+        function register() {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+
+            if (!username || !password) {
+                showNotification("Por favor, completa todos los campos.", 'error');
+                return;
+            }
+
+            if (localStorage.getItem(username)) {
+                showNotification("El usuario ya existe", 'error');
+                return;
+            }
+
+            localStorage.setItem(username, JSON.stringify({ password: password, profileImage: "" }));
+            showNotification("Usuario registrado exitosamente. Ahora puedes iniciar sesión.");
+        }
+
+        function uploadProfilePic(event) {
+            const file = event.target.files[0];
+            const username = document.getElementById('user-name').innerText;
+
+            if (!file) {
+                showNotification("Por favor, selecciona una imagen.", 'error');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const storedUser = JSON.parse(localStorage.getItem(username));
+                storedUser.profileImage = e.target.result;
+                localStorage.setItem(username, JSON.stringify(storedUser));
+
+                document.getElementById('profile-image').src = e.target.result;
+                document.getElementById('profile-image').style.display = 'block';
+                showNotification("Imagen de perfil actualizada");
+            }
+            reader.readAsDataURL(file);
+        }
+
+        function logout() {
+            localStorage.removeItem('loggedInUser');
+            document.getElementById('profile').style.display = 'none';
+            document.getElementById('login-form').style.display = 'block';
+            showNotification("Sesión cerrada");
+        }
+
+        // Cargar el calendario al inicio
+        loadCalendar();
+    </script>
+</body>
+</html>
